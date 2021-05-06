@@ -1,0 +1,8 @@
+This app find 'e' and 'X' pages in map file.
+
+How to use:
+1. Copy map file to folder with app.
+2. Rename map file to "MAP.txt" (very important).
+3. Double click to app (run app).
+
+After this steps you will have result analyzing in CMD. Goodluck!
