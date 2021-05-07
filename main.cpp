@@ -3,9 +3,17 @@
 #include <sstream>
 #include <vector>
 #include <map>
+#include <set>
 #include <iomanip>
 
 using namespace std;
+
+struct DuplicateReport
+{
+    string name;
+    string type;
+    vector<string> symptoms;
+};
 
 struct MAP_struct
 {
@@ -15,58 +23,74 @@ struct MAP_struct
 
 class Analyzer
 {
+    string MainLink = "https://jira-iic.zone2.agileci.conti.de/browse/";
 public:
-    bool Analyze_FTCUB4_9700(map<int, MAP_struct>& MapFile)
+    DuplicateReport Analyze_FTCUB4_9700(map<string, MAP_struct>& MapFile)
     {
         short MbLocation = 0;
-        if (MapFile.at(10).pages[0] == 'm' && MapFile.at(10).pages[1] == 'd')
+        if (MapFile.at("0010").pages[0] == 'm' && MapFile.at("0010").pages[1] == 'd')
         {
             MbLocation = 1;
-            for (const auto& Ch : MapFile.at(0).pages)
+            for (const auto& Ch : MapFile.at("0000").pages)
             {
                 if (Ch != '.')
                 {
-                    return false;
+                    return {"None", "", {}};
                 }
             }
         }
         else
         {
-            if (MapFile.at(16).pages[0] == 'm' && MapFile.at(16).pages[1] == 'd')
+            if (MapFile.at("0016").pages[0] == 'm' && MapFile.at("0016").pages[1] == 'd')
             {
                 MbLocation = 2;
-                for (const auto& Ch : MapFile.at(8).pages)
+                for (const auto& Ch : MapFile.at("0008").pages)
                 {
                     if (Ch != '.')
                     {
-                        return false;
+                        return {"None", "", {}};
                     }
                 }
             }
             
         }
 
-        cout << "This ticket is duplicate of FTCUB4-9700, because first line SBL partition erased!" << endl;
-        cout << "The first blocks partition SBL: " << endl;
+        vector<string> Symptoms;
+
+        Symptoms.push_back("The first blocks partition SBL:");
         if (MbLocation == 1)
         {
-            cout << setw(4) << setfill('0') << 0 << " " <<  MapFile.at(0).offset << " " << MapFile.at(0).pages << endl;
-            cout << setw(4) << setfill('0') << 1 << " " <<  MapFile.at(1).offset << " " << MapFile.at(1).pages << endl;
+            Symptoms.push_back("0000 " + MapFile.at("0000").offset + ' ' + MapFile.at("0000").pages);
+            Symptoms.push_back("0001 " + MapFile.at("0001").offset + ' ' + MapFile.at("0001").pages);
         }
         else
         {
-            cout << setw(4) << setfill('0') << 8 << " " <<  MapFile.at(8).offset << " " << MapFile.at(8).pages << endl;
-            cout << setw(4) << setfill('0') << 9 << " " <<  MapFile.at(9).offset << " " << MapFile.at(9).pages << endl;
+            Symptoms.push_back("0008 " + MapFile.at("0008").offset + ' ' + MapFile.at("0008").pages);
+            Symptoms.push_back("0009 " + MapFile.at("0009").offset + ' ' + MapFile.at("0009").pages);
         }
 
-        return true;
+        return {"FTCUB4-9700", "Memory corruption", Symptoms};
+    }
+    
+    void CreateDuplicateTable(const DuplicateReport& ticket)
+    {
+        cout << ' ' << setfill('_') << setw(122) << ' ' << endl;
+        cout << '|' << setfill(' ') << setw(10) << left << "Cause" << '|' << setw(110) << left << ticket.type + " (" + "duplicate of " + ticket.name + " - " +  MainLink + ticket.name << '|' << endl;
+        cout << '|' << setfill('_') << setw(11) << right << '|' << setw(111) << '|' << endl;
+
+        cout << '|' << setfill(' ') << setw(10) << left << "Tech.Det." << '|' << setw(111) << right << '|' << endl;
+        for (const auto& sym : ticket.symptoms)
+        {
+            cout << '|' << setw(11) << right << '|' << setw(110) << left << sym << '|' << endl;
+        }
+        cout << '|' << setfill('_') << setw(11) << right << '|' << setw(111) << '|' << endl;
     }
 };
 
 
 
 
-void PrintTableBitflips(const map<int, int>& bit_flips)
+void PrintTableBitflips(const map<char, int>& bit_flips)
 {   
     cout << ' ' << setfill('_') << setw(21) << ' ' << endl;
     cout << setw(20) << "|   BitFlips Table   |" << endl;
@@ -80,7 +104,7 @@ void PrintTableBitflips(const map<int, int>& bit_flips)
     }
 }
 
-void FindMain(const vector<int>& NumbersBlocksWithProblems, const map<int, int>& BitFlips)  
+void FindMain(const vector<string>& NumbersBlocksWithProblems, const map<char, int>& BitFlipsCount)  
 {
     cout << endl << "Statistic" << endl << endl;
     cout << "--------------------------------------------" << endl;
@@ -97,17 +121,22 @@ void FindMain(const vector<int>& NumbersBlocksWithProblems, const map<int, int>&
         }
     }
     cout << "--------------------------------------------" << endl;
-    PrintTableBitflips(BitFlips);
+    PrintTableBitflips(BitFlipsCount);
     cout << endl;
 }
 
 int main()
 {
-    vector<int> NumbersBlocksWithProblems;
-    map<int, int> BitFlips = {{1, 0}, {2, 0}, {3, 0},
-                                {4, 0}, {5, 0}, {6, 0},
-                                {7, 0}, {8, 0}, {9, 0}};
-    map<int, MAP_struct> MapFile;
+    vector<string> NumbersBlocksWithProblems;
+    map<char, int> BitFlipsCount = {{'1', 0}, {'2', 0}, {'3', 0},
+                                    {'4', 0}, {'5', 0}, {'6', 0},
+                                    {'7', 0}, {'8', 0}, {'9', 0},
+                                    {'e', 0}, {'U', 0}, {'F', 0},
+                                    {'M', 0}, {'B', 0}, {'X', 0}, 
+                                    {'*', 0}, {'V', 0}};
+    map<string, MAP_struct> MapFile;
+    string BitFlipsStr = "123456789UFMBVX*e";
+    map<char, set<string>> BitFlipsNumBlocks;
 
     short Op;
     
@@ -133,7 +162,7 @@ int main()
     while (getline(Mem, Str))
     {
         stringstream S(Str);
-        int BlockNum;
+        string BlockNum = "";
         string Offset = "";
         string Pages = "";
 
@@ -141,37 +170,10 @@ int main()
 
         for(const auto& ch : Pages)
         {
-            switch (ch)
+            if (BitFlipsStr.find(ch) != string::npos)
             {
-            case '1':
-                ++BitFlips[1];
-                break;
-            case '2':
-                ++BitFlips[2];
-                break;
-            case '3':
-                ++BitFlips[3];
-                break;
-            case '4':
-                ++BitFlips[4];
-                break;
-            case '5':
-                ++BitFlips[5];
-                break;
-            case '6':
-                ++BitFlips[6];
-                break;
-            case '7':
-                ++BitFlips[7];
-                break;
-            case '8':
-                ++BitFlips[8];
-                break;
-            case '9':
-                ++BitFlips[9];
-                break;
-            default:
-                break;
+                ++BitFlipsCount[ch];
+                BitFlipsNumBlocks[ch].insert(BlockNum);
             }
         }
 
@@ -189,16 +191,24 @@ int main()
 
     if (Op == 1)
     {
-        FindMain(NumbersBlocksWithProblems, BitFlips);
+        FindMain(NumbersBlocksWithProblems, BitFlipsCount);
     }
     else
     {
         Analyzer a;
-        if (!a.Analyze_FTCUB4_9700(MapFile))
+        DuplicateReport buff;
+
+        buff = a.Analyze_FTCUB4_9700(MapFile);
+        if (buff.name != "None")
+        {
+            a.CreateDuplicateTable(buff);
+        }
+        else
         {
             cout << "Analyzer didn`t find similar tickets, it is master ticket maybe" << endl;
         }
-        FindMain(NumbersBlocksWithProblems, BitFlips);
+        
+        //FindMain(NumbersBlocksWithProblems, BitFlipsCount);
     }
 
     system("pause");
