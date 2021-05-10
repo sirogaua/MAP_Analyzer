@@ -85,6 +85,20 @@ public:
         }
         cout << '|' << setfill('_') << setw(11) << right << '|' << setw(111) << '|' << endl;
     }
+
+    void WriteToFileAllFails(const map<char, set<string>>& BitFlipsNumBlocks, const map<string, MAP_struct>& MapFile)
+    {
+        ofstream out("ALL_FAILS.txt");
+        for (const auto& bitf : BitFlipsNumBlocks)
+        {
+            out << "All \'" << bitf.first << "\' Bitflips:" << endl;
+            for (const auto& block : bitf.second)
+            {
+                out << block << " " << MapFile.at(block).offset << " " << MapFile.at(block).pages << endl;
+            }
+            out << endl;
+        }
+    }
 };
 
 
@@ -205,7 +219,8 @@ int main()
         }
         else
         {
-            cout << "Analyzer didn`t find similar tickets, it is master ticket maybe" << endl;
+            cout << "Analyzer didn`t find similar tickets, it is master ticket maybe. Watch ALL_FAILS.txt for all posible fails!" << endl;
+            a.WriteToFileAllFails(BitFlipsNumBlocks, MapFile);
         }
         
         //FindMain(NumbersBlocksWithProblems, BitFlipsCount);
