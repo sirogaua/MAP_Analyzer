@@ -1,8 +1,27 @@
-This app find 'e' and 'X' pages in map file.
+This app analyze MAP file from NA tool, Sherlock output message files and trace from VUC-app-mode file.
+If current ticket has symptoms some from master-ticket list, app will report it and will create a Duplicate.txt file,
+with information for table in ContiJira system.
+Also, if app didn`t find master-ticket, all issues will write to ALL_FAILS.txt file.
 
 How to use:
-1. Copy map file to folder with app.
-2. Rename map file to "MAP.txt" (very important).
-3. Double click to app (run app).
+1. If you have MAP file from NA tool, copy him to folder with app and rename map file to "MAP.txt"(very important).
+2. If you have Sherlock output message files, copy them to folder with app.
+3. if you have VUC-app-mode file, copy content from it and past into "VUC_App_Mode_logs.txt"(create VUC_App_Mode_logs.txt, it needs because VUC-app-mode file can be in .rtf or .doc format).
 
-After this steps you will have result analyzing in CMD. Goodluck!
+After this steps run Analyzer.exe. Goodluck!
+
+
+Structure of Analizer:
+examples folder - examples all file that analyze by app.
+sourse folder - code modules.
+Analyzer.exe - app file.
+ParseMessages.exe - Additional file launched by app
+
+
+History versions:
+Analyzer_0.1 ----- simple analyze map file and print bitflips into console.
+Analyzer_0.2 ----- added new features: analyze symptoms FTCU-9700.
+Analyzer_0.3 ----- added new features: print duplicate table (if symptoms same).
+Analyzer_0.4 ----- added new features: all fails print into ALL_FAILS.txt file.
+Analyzer_0.5(current ver.) ----- file segmentation: Analyzer.cpp,  Analyzer.h, main.cpp
+			   ----- added new features: parse Sherlock message and Vuc-app-mode files, analyze symptoms FTCU-9641 and FTCU-9556, print duplicate content into Duplicate.txt file (if symptoms same).
