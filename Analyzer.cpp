@@ -36,6 +36,7 @@ void Analyzer::StartAnalyze()
     {
         MAP_f = true;
         DuplicateReport DupRep;
+
         DupRep = Analyze_FTCUB4_9700();
         if (DupRep.name != "None")
         {
@@ -43,6 +44,39 @@ void Analyzer::StartAnalyze()
             ExtractDuplicateIntoTheFile(DupRep);
             return;
         }
+
+        DupRep = Analyze_FTCUB4_9996();
+        if (DupRep.name != "None")
+        {
+            CreateDuplicateTable(DupRep);
+            ExtractDuplicateIntoTheFile(DupRep);
+            return;
+        }
+
+        DupRep = Analyze_FTCUB4_10373();
+        if (DupRep.name != "None")
+        {
+            CreateDuplicateTable(DupRep);
+            ExtractDuplicateIntoTheFile(DupRep);
+            return;
+        }
+        
+        DupRep = Analyze_FTCUB4_9693();
+        if (DupRep.name != "None")
+        {
+            CreateDuplicateTable(DupRep);
+            ExtractDuplicateIntoTheFile(DupRep);
+            return;
+        }
+
+        DupRep = Analyze_FTCUB4_9997();
+        if (DupRep.name != "None")
+        {
+            CreateDuplicateTable(DupRep);
+            ExtractDuplicateIntoTheFile(DupRep);
+            return;
+        }
+
     }
 
     cout << endl << "Result of analyzing:" << endl;
@@ -193,6 +227,10 @@ Analyzer::Analyzer()
                      {'*', 0}, {'V', 0}};
                      
     BitFlipsStr = "123456789UFMBVX*e";
+    UBiStartBlock = 273;
+    UBiEndBlock = 4095;
+    BootStartBlock = 122;
+    BootEndBlock = 169;
 }
 
 void Analyzer::PrintArrayMessagesSyms()
@@ -389,7 +427,99 @@ DuplicateReport Analyzer::Analyze_FTCUB4_9556()
     }
     return {"None", "", {}};
 }
+
+DuplicateReport Analyzer::Analyze_FTCUB4_9996()
+{
+    for (const auto& page : MapFile.at("0000").pages)
+    {
+        if (page == 'e')
+        {
+            vector<string> Symptoms;
+            Symptoms.push_back("The first blocks partition SBL:");
+            Symptoms.push_back("0000 " + MapFile.at("0000").offset + ' ' + MapFile.at("0000").pages);
+            Symptoms.push_back("0001 " + MapFile.at("0001").offset + ' ' + MapFile.at("0001").pages);
+
+            return {"FTCUB4-9996", "Memory corruption", Symptoms};
+        }
+    }
     
+    return {"None", "", {}};
+}
+
+DuplicateReport Analyzer::Analyze_FTCUB4_10373()
+{
+    for (const auto& page : MapFile.at("0001").pages)
+    {
+        if (page == 'e')
+        {
+            vector<string> Symptoms;
+            Symptoms.push_back("The first blocks partition SBL:");
+            Symptoms.push_back("0000 " + MapFile.at("0000").offset + ' ' + MapFile.at("0000").pages);
+            Symptoms.push_back("0001 " + MapFile.at("0001").offset + ' ' + MapFile.at("0001").pages);
+            Symptoms.push_back("0002 " + MapFile.at("0002").offset + ' ' + MapFile.at("0002").pages);
+
+            return {"FTCUB4-10373", "Memory corruption", Symptoms};
+        }
+    }
+    
+    return {"None", "", {}};
+}
+
+DuplicateReport Analyzer::Analyze_FTCUB4_9997()
+{
+    vector<string> Symptoms;
+    Symptoms.push_back("Corruption in the following blocks UBI partition:");
+
+    for (int index = UBiStartBlock; index <= UBiEndBlock; ++index)
+    {
+        string BlockNum = to_string(index);
+
+        if (BlockNum.size() == 3)
+        {
+            BlockNum = '0' + BlockNum;
+        }
+
+        for (const auto& page : MapFile.at(BlockNum).pages)
+        {
+            if (page == 'e')
+            {
+                Symptoms.push_back(BlockNum + " " + MapFile.at(BlockNum).offset + ' ' + MapFile.at(BlockNum).pages);
+                break;
+            }
+        }
+    }
+
+    if (Symptoms.size() > 1)
+    {
+        return {"FTCUB4-9997", "Memory corruption", Symptoms};
+    }   
+    return {"None", "", {}};
+}
+
+DuplicateReport Analyzer::Analyze_FTCUB4_9693()
+{
+    vector<string> Symptoms;
+    Symptoms.push_back("Corruption in the following blocks BOOT partition:");
+
+    for (int index = BootStartBlock; index <= BootEndBlock; ++index)
+    {
+        string BlockNum = '0' + to_string(index);
+        for (const auto& page : MapFile.at(BlockNum).pages)
+        {
+            if (page == 'e')
+            {
+                Symptoms.push_back(BlockNum + " " + MapFile.at(BlockNum).offset + ' ' + MapFile.at(BlockNum).pages);
+                break;
+            }
+        }
+    }
+
+    if (Symptoms.size() > 1)
+    {
+        return {"FTCUB4-9693", "Memory corruption", Symptoms};
+    }   
+    return {"None", "", {}};
+}   
 
 void Analyzer::CreateDuplicateTable(const DuplicateReport& ticket)
 {

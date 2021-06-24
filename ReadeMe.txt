@@ -15,7 +15,7 @@ Structure of Analizer:
 examples folder - examples all file that analyze by app.
 sourse folder - code modules.
 Analyzer.exe - app file.
-ParseMessages.exe - Additional file launched by app
+ParseMessages.exe - Additional file launched by Analyzer.exe
 
 
 History versions:
@@ -23,5 +23,6 @@ Analyzer_0.1 ----- simple analyze map file and print bitflips into console.
 Analyzer_0.2 ----- added new features: analyze symptoms FTCU-9700.
 Analyzer_0.3 ----- added new features: print duplicate table (if symptoms same).
 Analyzer_0.4 ----- added new features: all fails print into ALL_FAILS.txt file.
-Analyzer_0.5(current ver.) ----- file segmentation: Analyzer.cpp,  Analyzer.h, main.cpp
-			   ----- added new features: parse Sherlock message and Vuc-app-mode files, analyze symptoms FTCU-9641 and FTCU-9556, print duplicate content into Duplicate.txt file (if symptoms same).
+Analyzer_0.5 ----- file segmentation: Analyzer.cpp,  Analyzer.h, main.cpp
+	     ----- added new features: parse Sherlock message and Vuc-app-mode files, analyze symptoms FTCUB4-9641 and FTCUB4-9556, print duplicate content into Duplicate.txt file (if symptoms same).
+Analyzer_0.6 (current version) ----- added new features: analyze new symptoms memory corruption tickets: FTCUB4-9996, FTCUB4-10373, FTCUB4-9693 and FTCUB4-9997.
